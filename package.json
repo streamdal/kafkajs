@@ -1,7 +1,7 @@
 {
-  "name": "kafkajs",
+  "name": "@streamdal/kafkajs",
   "version": "2.2.4",
-  "description": "A modern Apache Kafka client for node.js",
+  "description": "A shim for Kafkajs to support Streamdal's code-native data pipeline platform",
   "author": "Tulio Ornelas <ornelas.tulio@gmail.com>",
   "main": "index.js",
   "types": "types/index.d.ts",
@@ -16,12 +16,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tulios/kafkajs.git"
+    "url": "https://github.com/streamdal/kafkajs.git"
   },
   "bugs": {
-    "url": "https://github.com/tulios/kafkajs/issues"
+    "url": "https://github.com/streamdal/kafkajs/issues"
   },
-  "homepage": "https://kafka.js.org",
+  "homepage": "https://streamdal.com/",
   "scripts": {
     "jest": "export KAFKA_VERSION=${KAFKA_VERSION:='2.4'} && NODE_ENV=test echo \"KAFKA_VERSION: ${KAFKA_VERSION}\" && KAFKAJS_DEBUG_PROTOCOL_BUFFERS=1 jest",
     "test:local": "yarn jest --detectOpenHandles",
@@ -74,7 +74,9 @@
     "typescript": "^3.8.3",
     "uuid": "^3.3.2"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@streamdal/node-sdk": "^0.2.16"
+  },
   "lint-staged": {
     "*.js": [
       "prettier --write",

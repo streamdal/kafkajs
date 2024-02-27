@@ -62,6 +62,7 @@ module.exports = ({
   rackId = '',
   instrumentationEmitter: rootInstrumentationEmitter,
   metadataMaxAge,
+  streamdal,
 }) => {
   if (!groupId) {
     throw new KafkaJSNonRetriableError('Consumer groupId must be a non-empty string.')
@@ -194,6 +195,7 @@ module.exports = ({
     partitionsConsumedConcurrently: concurrency = 1,
     eachBatch = null,
     eachMessage = null,
+    streamdalAudience,
   } = {}) => {
     if (consumerGroup) {
       logger.warn('consumer#run was called, but the consumer is already running', { groupId })
@@ -238,6 +240,8 @@ module.exports = ({
         eachMessage,
         onCrash,
         concurrency,
+        streamdal,
+        streamdalAudience,
       })
 
       await runner.start()
