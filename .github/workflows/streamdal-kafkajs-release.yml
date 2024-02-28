@@ -3,7 +3,7 @@ name: Streamdal Kafkajs Shim - Release
 on:
   push:
     branches:
-      - main
+      - master
 
 defaults:
 
