@@ -4,7 +4,7 @@
 > [!IMPORTANT]
 > This library is instrumented with [Streamdal's Node SDK](https://github.com/streamdal/streamdal/tree/main/sdks/node).
 >
-> Refer to [README.STREAMDAL.md]([README.STREAMDAL.md](..%2Fconfluent-kafka-go%2FREADME.STREAMDAL.md)README.STREAMDAL.md) for more information.
+> Refer to [README.STREAMDAL.md](README.STREAMDAL.md) for more information.
 > 
  
 
