@@ -1,6 +1,6 @@
 {
   "name": "@streamdal/kafkajs",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "A shim for Kafkajs to support Streamdal's code-native data pipeline platform",
   "author": "Tulio Ornelas <ornelas.tulio@gmail.com>",
   "main": "index.js",
