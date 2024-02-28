@@ -13,12 +13,14 @@ const ISOLATION_LEVEL = require('./protocol/isolationLevel')
 const defaultSocketFactory = require('./network/socketFactory')
 const once = require('./utils/once')
 const websiteUrl = require('./utils/websiteUrl')
+const { Streamdal } = require('@streamdal/node-sdk')
 
 const PRIVATE = {
   CREATE_CLUSTER: Symbol('private:Kafka:createCluster'),
   CLUSTER_RETRY: Symbol('private:Kafka:clusterRetry'),
   LOGGER: Symbol('private:Kafka:logger'),
   OFFSETS: Symbol('private:Kafka:offsets'),
+  STREAMDAL: Symbol('private:Kafka:Streamdal'),
 }
 
 const DEFAULT_METADATA_MAX_AGE = 300000
@@ -47,6 +49,7 @@ module.exports = class Client {
    * @param {boolean} [options.enforceRequestTimeout]
    * @param {import("../types").RetryOptions} [options.retry]
    * @param {import("../types").ISocketFactory} [options.socketFactory]
+   * @param {import("../types").StreamdalConfigs} [options.streamdalConfigs]
    */
   constructor({
     brokers,
@@ -62,7 +65,30 @@ module.exports = class Client {
     socketFactory = defaultSocketFactory(),
     logLevel = INFO,
     logCreator = LoggerConsole,
+    streamdalConfigs,
   }) {
+    if (
+      streamdalConfigs ||
+      (process.env.STREAMDAL_URL &&
+        process.env.STREAMDAL_TOKEN &&
+        process.env.STREAMDAL_SERVICE_NAME)
+    ) {
+      this[PRIVATE.STREAMDAL] = {
+        registration: new Streamdal(streamdalConfigs),
+        configs: {
+          ...streamdalConfigs,
+          serviceName:
+            streamdalConfigs && streamdalConfigs.serviceName
+              ? streamdalConfigs.serviceName
+              : process.env.STREAMDAL_SERVICE_NAME,
+          abortOnError: streamdalConfigs ? streamdalConfigs.abortOnError : false,
+          disableAutomaticPipelines: streamdalConfigs
+            ? streamdalConfigs.disableAutomaticPipelines
+            : false,
+        },
+      }
+    }
+
     this[PRIVATE.OFFSETS] = new Map()
     this[PRIVATE.LOGGER] = createLogger({ level: logLevel, logCreator })
     this[PRIVATE.CLUSTER_RETRY] = retry
@@ -129,6 +155,7 @@ module.exports = class Client {
       transactionalId,
       transactionTimeout,
       instrumentationEmitter,
+      streamdal: this[PRIVATE.STREAMDAL],
     })
   }
 
@@ -182,6 +209,7 @@ module.exports = class Client {
       instrumentationEmitter,
       rackId,
       metadataMaxAge,
+      streamdal: this[PRIVATE.STREAMDAL],
     })
   }
 

@@ -26,6 +26,7 @@ const { CONNECT, DISCONNECT } = events
  * @param {string} [params.transactionalId]
  * @param {number} [params.transactionTimeout]
  * @param {InstrumentationEventEmitter} [params.instrumentationEmitter]
+ * @param {import('../../types').Streamdal} [params.streamdal]
  *
  * @returns {import('../../types').Producer}
  */
@@ -38,6 +39,7 @@ module.exports = ({
   transactionalId,
   transactionTimeout,
   instrumentationEmitter: rootInstrumentationEmitter,
+  streamdal,
 }) => {
   let connectionStatus = CONNECTION_STATUS.DISCONNECTED
   retry = retry || { retries: idempotent ? Number.MAX_SAFE_INTEGER : 5 }
@@ -73,6 +75,7 @@ module.exports = ({
     idempotent,
     retrier,
     getConnectionStatus: () => connectionStatus,
+    streamdal,
   })
 
   let transactionalEosManager

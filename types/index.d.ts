@@ -3,6 +3,15 @@
 import * as tls from 'tls'
 import * as net from 'net'
 
+import {
+  StreamdalConfigs,
+  Streamdal,
+  Audience,
+  OperationType
+} from "@streamdal/node-sdk";
+
+export { StreamdalConfigs, Streamdal, Audience, OperationType  };
+
 type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never }
 type XOR<T, U> = T | U extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U
 
@@ -61,6 +70,7 @@ export interface KafkaConfig {
   socketFactory?: ISocketFactory
   logLevel?: logLevel
   logCreator?: logCreator
+  streamdalConfigs?: StreamdalConfigs & { abortOnError?: boolean; disableAutomaticPipelines?: boolean}
 }
 
 export interface ISocketFactoryArgs {
@@ -732,6 +742,7 @@ export interface ProducerRecord {
   acks?: number
   timeout?: number
   compression?: CompressionTypes
+  streamdalAudience?: Audience
 }
 
 export type RecordMetadata = {
@@ -1021,6 +1032,7 @@ export type ConsumerRunConfig = {
   partitionsConsumedConcurrently?: number
   eachBatch?: EachBatchHandler
   eachMessage?: EachMessageHandler
+  streamdalAudience?: Audience
 }
 
 /**

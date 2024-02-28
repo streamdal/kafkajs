@@ -7,6 +7,7 @@ const {
   events: { FETCH, FETCH_START, START_BATCH_PROCESS, END_BATCH_PROCESS, REBALANCING },
 } = require('./instrumentationEvents')
 const createFetchManager = require('./fetchManager')
+const { consumeProcess } = require('../streamdal')
 
 const isSameOffset = (offsetA, offsetB) => Long.fromValue(offsetA).equals(Long.fromValue(offsetB))
 const CONSUMING_START = 'consuming-start'
@@ -26,6 +27,8 @@ module.exports = class Runner extends EventEmitter {
    * @param {(reason: Error) => void} options.onCrash
    * @param {import("../../types").RetryOptions} [options.retry]
    * @param {boolean} [options.autoCommit=true]
+   * @param {import("../../types").Streamdal} options.streamdal
+   * @param {import("../../types").Audience} options.streamdalAudience
    */
   constructor({
     logger,
@@ -39,8 +42,12 @@ module.exports = class Runner extends EventEmitter {
     onCrash,
     retry,
     autoCommit = true,
+    streamdal,
+    streamdalAudience,
   }) {
     super()
+    this.streamdal = streamdal
+    this.streamdalAudience = streamdalAudience
     this.logger = logger.namespace('Runner')
     this.consumerGroup = consumerGroup
     this.instrumentationEmitter = instrumentationEmitter
@@ -440,6 +447,13 @@ module.exports = class Runner extends EventEmitter {
         await this.heartbeat()
         return
       }
+
+      batch.messages = await consumeProcess(
+        batch.messages,
+        this.streamdal,
+        this.streamdalAudience,
+        `${batch.topic}-${this.consumerGroup.groupId}`
+      )
 
       this.instrumentationEmitter.emit(START_BATCH_PROCESS, payload)
 

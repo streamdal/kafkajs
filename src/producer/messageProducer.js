@@ -10,6 +10,7 @@ module.exports = ({
   idempotent,
   retrier,
   getConnectionStatus,
+  streamdal,
 }) => {
   const sendMessages = createSendMessages({
     logger,
@@ -17,6 +18,7 @@ module.exports = ({
     retrier,
     partitioner,
     eosManager,
+    streamdal,
   })
 
   const validateConnectionStatus = () => {
@@ -51,7 +53,13 @@ module.exports = ({
    * @param {SendBatchRequest}
    * @returns {Promise}
    */
-  const sendBatch = async ({ acks = -1, timeout, compression, topicMessages = [] }) => {
+  const sendBatch = async ({
+    acks = -1,
+    timeout,
+    compression,
+    topicMessages = [],
+    streamdalAudience,
+  }) => {
     if (topicMessages.some(({ topic }) => !topic)) {
       throw new KafkaJSNonRetriableError(`Invalid topic`)
     }
@@ -97,6 +105,7 @@ module.exports = ({
       timeout,
       compression,
       topicMessages: mergedTopicMessages,
+      streamdalAudience,
     })
   }
 
@@ -114,14 +123,16 @@ module.exports = ({
    *                            1 = only waits for the leader to acknowledge
    * @property {number} [timeout=30000] The time to await a response in ms
    * @property {Compression.Types} [compression=Compression.Types.None] Compression codec
+   * @property {Compression.Types} [compression=Compression.Types.None] Compression codec
    */
-  const send = async ({ acks, timeout, compression, topic, messages }) => {
+  const send = async ({ acks, timeout, compression, topic, messages, streamdalAudience }) => {
     const topicMessage = { topic, messages }
     return sendBatch({
       acks,
       timeout,
       compression,
       topicMessages: [topicMessage],
+      streamdalAudience,
     })
   }
 

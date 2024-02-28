@@ -3,6 +3,7 @@ const { staleMetadata } = require('../protocol/error')
 const groupMessagesPerPartition = require('./groupMessagesPerPartition')
 const createTopicData = require('./createTopicData')
 const responseSerializer = require('./responseSerializer')
+const { produceProcess } = require(`../streamdal`)
 
 const { keys } = Object
 
@@ -13,9 +14,10 @@ const { keys } = Object
  * @param {ReturnType<import("../../types").ICustomPartitioner>} options.partitioner
  * @param {import("./eosManager").EosManager} options.eosManager
  * @param {import("../retry").Retrier} options.retrier
+ * @param {import("../../types").Streamdal} options.streamdal
  */
-module.exports = ({ logger, cluster, partitioner, eosManager, retrier }) => {
-  return async ({ acks, timeout, compression, topicMessages }) => {
+module.exports = ({ logger, cluster, partitioner, eosManager, retrier, streamdal }) => {
+  return async ({ acks, timeout, compression, topicMessages, streamdalAudience }) => {
     /** @type {Map<import("../../types").Broker, any[]>} */
     const responsePerBroker = new Map()
 
@@ -37,10 +39,18 @@ module.exports = ({ logger, cluster, partitioner, eosManager, retrier }) => {
           throw new KafkaJSMetadataNotLoaded('Producing to topic without metadata')
         }
 
+        const transformedMessages = await produceProcess(
+          messages,
+          streamdal,
+          streamdalAudience,
+          topic,
+          true
+        )
+
         const messagesPerPartition = groupMessagesPerPartition({
           topic,
           partitionMetadata,
-          messages,
+          messages: transformedMessages,
           partitioner,
         })
 
